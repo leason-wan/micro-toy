@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroToy</title>
+</head>
+<body>
+  <div>this is main page</div>
+  <script type="module">
+    // import { registerMicroApps, start } from 'qiankun';
+    import { createLayer } from './index.js';
+    const layer = createLayer();
+
+    layer.registerMicroApps([
+      {
+        name: 'react app', // app name registered
+        entry: '//localhost:7100',
+        container: '#yourContainer',
+        activeRule: '/yourActiveRule',
+      },
+      {
+        name: 'vue app',
+        entry: { scripts: ['//localhost:7100/main.js'] },
+        container: '#yourContainer2',
+        activeRule: '/yourActiveRule2',
+      },
+    ]);
+
+    layer.start();
+    console.log(layer);
+  </script>
+</body>
+</html>
