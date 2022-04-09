@@ -1,35 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MicroToy</title>
-</head>
-<body>
-  <div>this is main page</div>
-  <script type="module">
-    // import { registerMicroApps, start } from 'qiankun';
-    import { createLayer } from './index.js';
-    const layer = createLayer();
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MicroToy</title>
+  </head>
+  <body>
+    <div>this is main page</div>
+    <button id="btnOne">home</button>
+    <button id="btnTwo">load vue</button>
+    <button id="btnThree">load react</button>
+    <div id="MICRO_CONTAINER"></div>
 
-    layer.registerMicroApps([
-      {
-        name: 'react app', // app name registered
-        entry: '//localhost:7100',
-        container: '#yourContainer',
-        activeRule: '/yourActiveRule',
-      },
-      {
-        name: 'vue app',
-        entry: { scripts: ['//localhost:7100/main.js'] },
-        container: '#yourContainer2',
-        activeRule: '/yourActiveRule2',
-      },
-    ]);
+    <script type="module">
+      import { createLayer } from "./index.js";
+      const layer = createLayer();
+      const container = document.querySelector("#MICRO_CONTAINER");
 
-    layer.start();
-    console.log(layer);
-  </script>
-</body>
+      layer.registerMicroApps([
+        {
+          name: "react-app",
+          entry: [
+            "//localhost:3000/static/js/bundle.js",
+          ],
+          container,
+          isActive: () => window.location.pathname.includes("/react"),
+          publicPath: '//localhost:3000/',
+        },
+        {
+          name: "vue-app",
+          entry: [
+            "//localhost:8001/js/chunk-vendors.js",
+            "//localhost:8001/js/app.js",
+          ],
+          container,
+          isActive: () => window.location.pathname.includes("/vue"),
+          publicPath: '//localhost:8001/',
+          baseUrl: '/vue'
+        },
+      ]);
+
+      console.log(layer);
+
+      const btnOne = document.querySelector('#btnOne');
+      btnOne.addEventListener('click', () => {
+        window.location.href = '/'
+      });
+
+      const btnTwo = document.querySelector('#btnTwo');
+      btnTwo.addEventListener('click', () => {
+        window.history.pushState('', null, '/vue')
+      });
+
+      const btnThree = document.querySelector('#btnThree');
+      btnThree.addEventListener('click', () => {
+        window.history.pushState('', null, '/react')
+      });
+
+    </script>
+  </body>
 </html>
