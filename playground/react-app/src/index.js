@@ -22,7 +22,6 @@ function render(props) {
   const { container, publicPath } = props;
   // eslint-disable-next-line
   publicPath && (__webpack_public_path__ = publicPath);
-  console.log(container);
   root = createRoot(container || document.querySelector('#root'));
   root.render(<App />);
 }
@@ -37,8 +36,6 @@ export async function mount(props) {
 }
 
 export async function unmount() {
-  // const { container } = props;
-  // ReactDOM.unmountComponentAtNode(container || document.querySelector('#root'));
   root.unmount();
   console.log('react app unmount');
 }

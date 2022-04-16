@@ -9,6 +9,11 @@
 // isMount: true | false           // 应用是否激活
 // mounted: () => void            // 应用挂载的回调
 // unmount: () => void            // 应用卸载的回调
+// resetContainer                 // 重置容器DOM
+
+// callhook
+// mountApp
+// unMountApp
 
 export function createApp(options = {}) {
   isValidateOptions(options);
@@ -17,9 +22,12 @@ export function createApp(options = {}) {
   const app = {
     isMount: false,
     resetContainer,
+    mountApp,
+    unMountApp,
     ...options,
     props: {
       ...options.props,
+      isMicroToy: true,
       name,
       publicPath,
       container,
@@ -33,6 +41,34 @@ export function createApp(options = {}) {
     const divEl = document.createElement('div');
     container.appendChild(divEl);
     app.props.container = divEl;
+  }
+
+  async function mountApp() {
+    if (app.isMount) return;
+    const { entry, name } = app;
+    if (!app.mount) {
+      const scripts = await Promise.all(entry.map(script => fetch(script)
+        .then(res => res.text()))
+      )
+      scripts.forEach(script => {
+        eval(script);
+      })
+      const { mount, unmount } = window[name];
+      app.mount = mount;
+      app.unmount = unmount;
+    }
+
+    app.resetContainer();
+    await app.mount(app.props);
+    app.isMount = true;
+  }
+
+  async function unMountApp() {
+    if (!app.unmount) return;
+    app.resetContainer();
+    await app.unmount(app.props);
+    app.isMount = false;
+    return true;
   }
 
   return app;

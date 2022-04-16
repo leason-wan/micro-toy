@@ -15,49 +15,30 @@ export function createLayer() {
     layer.start();
   }
 
-  async function runMount(app) {
-    if (app.isMount) return;
-    const { entry, name } = app;
-    if (!app.mount) {
-      const scripts = await Promise.all(entry.map(script => fetch(script)
-        .then(res => res.text()))
-      )
-      scripts.forEach(script => {
-        eval(script);
-      })
-      const { mount, unmount } = window[name];
-      app.mount = mount;
-      app.unmount = unmount;
-    }
-
-    app.resetContainer();
-    await app.mount(app.props);
-    app.isMount = true;
-  }
-
-  async function runUnMount(app) {
-    if (!app.unmount) return;
-    app.resetContainer();
-    await app.unmount(app.props);
-    app.isMount = false;
-  }
-
-  function start() {
+  async function start() {
     window.__POWERED_BY_MICRO_TOY__ = true;
-    layer.apps.forEach(async app => {
+    
+    const unMountPromise = [];
+    const mountPromise = [];
+
+    layer.apps.forEach(app => {
       const { isActive } = app;
-      if (!isActive()) {
-        await runUnMount(app);
-      } else {
-        await runMount(app);
+      if (isActive() && !app.isMount) {
+        mountPromise.push(() => app.mountApp());
+      }
+      if (!isActive() && app.isMount) {
+        unMountPromise.push(() => app.unMountApp());
       }
     })
+
+    await Promise.all(unMountPromise.map(fn => fn()));
+    Promise.all(mountPromise.map(fn => fn()));
   }
   
   // 路由拦截
   const rawPushState = window.history.pushState;
-  window.history.pushState = function () {
-    rawPushState.apply(this, arguments);
+  window.history.pushState = function (...rest) {
+    rawPushState.apply(this, rest);
     layer.start();
   };
 

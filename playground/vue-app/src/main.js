@@ -38,7 +38,7 @@ export async function mount(props) {
 
 export async function unmount() {
   instance.$destroy();
-  // instance.$el.innerHTML = '';
+  instance.$el.innerHTML = '';
   instance = null;
   console.log('vue app unmount');
 }
