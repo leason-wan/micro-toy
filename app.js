@@ -13,8 +13,10 @@
 export function createApp(options = {}) {
   isValidateOptions(options);
   const { name, publicPath, container, baseUrl } = options;
+
   const app = {
     isMount: false,
+    resetContainer,
     ...options,
     props: {
       ...options.props,
@@ -24,6 +26,15 @@ export function createApp(options = {}) {
       baseUrl
     }
   }
+
+  function resetContainer() {
+    const { container } = app;
+    container.innerHTML = '';
+    const divEl = document.createElement('div');
+    container.appendChild(divEl);
+    app.props.container = divEl;
+  }
+
   return app;
 }
 

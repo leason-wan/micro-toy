@@ -17,7 +17,7 @@ export function createLayer() {
 
   async function runMount(app) {
     if (app.isMount) return;
-    const { entry, name, props, container } = app;
+    const { entry, name } = app;
     if (!app.mount) {
       const scripts = await Promise.all(entry.map(script => fetch(script)
         .then(res => res.text()))
@@ -30,29 +30,20 @@ export function createLayer() {
       app.unmount = unmount;
     }
 
-    container.innerHTML = '';
-    const divEl = document.createElement('div');
-    container.appendChild(divEl);
-    await app.mount({
-      ...props,
-      container: divEl,
-    });
+    app.resetContainer();
+    await app.mount(app.props);
     app.isMount = true;
   }
 
   async function runUnMount(app) {
     if (!app.unmount) return;
+    app.resetContainer();
     await app.unmount(app.props);
     app.isMount = false;
   }
 
   function start() {
-    // console.log('layer start');
     window.__POWERED_BY_MICRO_TOY__ = true;
-    // 启动layer
-    // 管理app的状态
-      // app的加载方式 UMD
-      // app的状态更新
     layer.apps.forEach(async app => {
       const { isActive } = app;
       if (!isActive()) {
