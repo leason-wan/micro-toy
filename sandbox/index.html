@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>qiankun</title>
+</head>
+<body>
+  <h1>沙箱状态</h1>
+  <p id="app"></p>
+  <button id="button">开/关</button>
+  <script type="module">
+    import { createSandbox } from './sandbox.js';
+    
+    const code = `
+      // test proxy vars
+      foo = 'foo in sandbox';
+      console.log(foo);
+      // test listeners
+      window.addEventListener('click', function() {
+        console.log('you click the window');
+      });
+      // test interval
+      window.setInterval(() => console.log('interval print!'), 1000)
+      alert('Hello from sandbox');
+      window.testFn = function () {
+        window.foo = 'foo in sandbox changed';
+      }
+    `;
+
+    const sandbox = createSandbox();
+    window.foo = 'foo in global';
+    sandbox.run(code);
+    // for test
+    window.sandbox = sandbox;
+    display();
+
+    function display() {
+      const appDom = document.querySelector('#app');
+      appDom.innerHTML = sandbox.isRun ? '沙箱已启动' : '沙箱已被销毁';
+    }
+
+    const button = document.querySelector('#button');
+    button.addEventListener('click', () => {
+      sandbox.isRun ? sandbox.destory() : sandbox.run(code);
+      display();
+    })
+    
+  </script>
+</body>
+</html>
