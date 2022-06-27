@@ -1,6 +1,8 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
+    <h1>{{count}}</h1>
+    <button @click="increment">count set</button>
+    <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
@@ -13,6 +15,19 @@ export default {
   name: 'HomeView',
   components: {
     HelloWorld
-  }
+  },
+  data() {
+    return {
+      count: 0,
+    }
+  },
+  created() {
+    this.count = window.count || 0;
+  },
+  methods: {
+    increment() {
+      window.count = ++this.count;
+    },
+  },
 }
 </script>
