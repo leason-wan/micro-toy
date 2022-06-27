@@ -54,9 +54,7 @@ export function createApp(options = {}) {
         .then(res => res.text()))
       )
       scripts.forEach(script => {
-        // 沙盒
         app.sandbox.run(script);
-        // eval(script);
       })
       app.mount = app.sandbox.global[name].mount;
       app.unmount = app.sandbox.global[name].unmount;

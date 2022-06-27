@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <h1>{{count}}</h1>
-    <button @click="handleClick">set count</button>
+    <button @click="increment">count set</button>
     <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
     <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
@@ -25,9 +25,9 @@ export default {
     this.count = window.count || 0;
   },
   methods: {
-    handleClick() {
-      window.count = this.count += 1;
-    }
-  }
+    increment() {
+      window.count = ++this.count;
+    },
+  },
 }
 </script>

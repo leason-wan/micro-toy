@@ -1,79 +1,65 @@
+const rawWindow = window;
+
 function exeCode(code, sandbox) {
-  window.SANDBOX_GLOBAL_CONTEXT = sandbox.global;
-  const _code = `;(function(window, self){
+  window.__MICRO_TOY_CONTEXT__ = sandbox.global;
+  const _code = `;(function(window, self) {
     with(window) {
       ${code}
     }
-  }).call(window.SANDBOX_GLOBAL_CONTEXT, window.SANDBOX_GLOBAL_CONTEXT, window.SANDBOX_GLOBAL_CONTEXT);`;;
+  }).call(window.__MICRO_TOY_CONTEXT__, window.__MICRO_TOY_CONTEXT__, window.__MICRO_TOY_CONTEXT__);`
 
+  // 规避with严格模式的问题。 new Funciton -- vuejs template complier
   try {
     (0, eval)(_code);
     sandbox.isRun = true;
   } catch (error) {
-    console.error(`[sandbox runtime error]: ${error}`);
+    console.error(`[micro-toy sandbox] ${error}`);
   }
+  
 }
 
-function createSandbox(plugins = []) {
+export function createSandbox() {
+  const fakeWindow = {};
+  
   const sandbox = {
+    global: {},
+    run,           // script run window inject
+    stop,
     isRun: false
   };
-  const rawWindow = window;
-  const fakeWindow = Object.create(null);
 
-  sandbox.run = function run(code) {
-    // 处理变量状态
+  function run (code) {
+    // 访问fakeWindow的属性, 没有的话，从全局window取。
+    // 设置fakeWindow的属性，设置到fakewindow上。
     sandbox.global = new Proxy(fakeWindow, {
       get(target, key) {
-        // 优先从代理对象上取值
         if (Reflect.has(target, key)) {
-          return Reflect.get(target, key)
+          return Reflect.get(target, key);
         }
 
-        // 否则兜底到全局window对象上取值
-        const rawValue = Reflect.get(rawWindow, key)
+        const rawValue = Reflect.get(rawWindow, key);
 
-        // 如果兜底的值为函数，则需要绑定window对象，如：console、alert等
+        // console alert
         if (typeof rawValue === 'function') {
-          const valueStr = rawValue.toString()
-          // 排除构造函数
+          const valueStr = rawValue.toString();
           if (!/^function\s+[A-Z]/.test(valueStr) && !/^class\s+/.test(valueStr)) {
-            return rawValue.bind(rawWindow)
+            return rawValue.bind(rawWindow);
           }
         }
 
-        // 其它情况直接返回
-        return rawValue
+        return rawValue;
       },
-      set(target, property, value) {
-        target[property] = value;
+      set(target, key, value) {
+        target[key] = value;
         return true;
-      },
-    });
-
-    plugins.forEach((plugin) => {
-      const { beforeStart } = plugin;
-      beforeStart(sandbox.global);
+      }
     })
     exeCode(code, sandbox);
   }
 
-  sandbox.stop = function destory() {
-    plugins.forEach((plugin) => {
-      const { beforeStop } = plugin;
-      beforeStop(sandbox.global);
-    })
+  function stop() {
     sandbox.isRun = false;
-  }
-
-  sandbox.destory = function destory() {
-    if (sandbox.isRun) {
-      sandbox.stop();
-    }
-    sandbox.global = {};
   }
 
   return sandbox;
 }
-
-export { createSandbox };
