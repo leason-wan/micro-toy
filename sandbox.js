@@ -1,5 +1,3 @@
-import { corePlugin } from "./plugins/index.js";
-
 function exeCode(code, sandbox) {
   window.SANDBOX_GLOBAL_CONTEXT = sandbox.global;
   const _code = `;(function(window, self){
@@ -22,7 +20,6 @@ function createSandbox(plugins = []) {
   };
   const rawWindow = window;
   const fakeWindow = Object.create(null);
-  plugins = [corePlugin, ...plugins];
 
   sandbox.run = function run(code) {
     // 处理变量状态
