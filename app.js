@@ -15,7 +15,7 @@
 // mountApp
 // unMountApp
 
-import { createSandbox } from './sandbox/index.js';
+import { createSandbox } from './sandbox.js';
 
 export function createApp(options = {}) {
   isValidateOptions(options);
@@ -54,14 +54,10 @@ export function createApp(options = {}) {
         .then(res => res.text()))
       )
       scripts.forEach(script => {
-        // eval(script);
         app.sandbox.run(script);
       })
       app.mount = app.sandbox.global[name].mount;
       app.unmount = app.sandbox.global[name].unmount;
-      // const { mount, unmount } = window[name];
-      // app.mount = mount;
-      // app.unmount = unmount;
     }
 
     app.resetContainer();
